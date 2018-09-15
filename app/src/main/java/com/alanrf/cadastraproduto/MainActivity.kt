@@ -7,9 +7,14 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
+import android.view.View
+import android.widget.SimpleAdapter
 import com.alanrf.cadastraproduto.db.BancoDados
+import com.alanrf.cadastraproduto.db.MIGRATION_1_2
 import com.alanrf.cadastraproduto.db.dao.ProdutoDao
 import com.alanrf.cadastraproduto.db.entity.Produto
+import com.alanrf.cadastraproduto.swipehelper.SwipeToDeleteCallback
+import com.alanrf.cadastraproduto.swipehelper.SwipeToEditCallback
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -46,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     private fun configuraBanco() {
         val db = Room.databaseBuilder(this,
                 BancoDados::class.java,
-                Companion.nomeBancoDados).allowMainThreadQueries().build()
+                Companion.nomeBancoDados).addMigrations(MIGRATION_1_2).allowMainThreadQueries().build()
 
         produtoDao = db.produtoDao()
         meusProdutosArrayList = carregarProdutos()
@@ -54,52 +59,38 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun configurarComportamentoListaRecyclerView(meusProdutosArrayList: ArrayList<Produto>) {
-
         rcv_lista_produtos.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
 
         produtoAdapter = ProdutoListaAdapter(meusProdutosArrayList, context = this)
-
         rcv_lista_produtos.adapter = produtoAdapter
 
-        val produtoCadastro = Intent(this, CadastroActivity::class.java)
-
-        val helper = ItemTouchHelper(
-                object : ItemTouchHelper.SimpleCallback(0,
-                        ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-
-                    override fun onMove(p0: RecyclerView, p1: RecyclerView.ViewHolder, p2: RecyclerView.ViewHolder): Boolean {
-                        return false
-                    }
-
+        val itemTouchHelperDelete = ItemTouchHelper(
+                object : SwipeToDeleteCallback(this) {
                     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-
-                        //Delete
-                        if (ItemTouchHelper.LEFT == direction) {
-                            var nomeProduto: String = viewHolder.itemView.lbProduto.text.toString()
-                            var idProduto = nomeProduto.substring(0, nomeProduto.indexOf('-'))
-
-                            val prod = produtoDao.selecionarProduto(Integer.parseInt(idProduto))
-                            produtoDao.remover(prod)
-
-                            var posicao = viewHolder.adapterPosition
-                            meusProdutosArrayList.removeAt(posicao)
-                            produtoAdapter.notifyItemRemoved(posicao)
-
-                            return;
-                        }
-
-                        if (ItemTouchHelper.RIGHT == direction) {
-                            var nomeProduto: String = viewHolder.itemView.lbProduto.text.toString()
-                            var idProduto = nomeProduto.substring(0, nomeProduto.indexOf('-'))
-
-                            startActivity(produtoCadastro)
-                            return;
-                        }
+                        var posicao = viewHolder.adapterPosition
+                        val prod = meusProdutosArrayList.get(posicao)
+                        produtoDao.remover(prod)
+                        meusProdutosArrayList.removeAt(posicao)
+                        produtoAdapter.notifyItemRemoved(posicao)
                     }
                 }
         )
+        itemTouchHelperDelete.attachToRecyclerView(rcv_lista_produtos)
 
-        helper.attachToRecyclerView(rcv_lista_produtos)
+        val produtoCadastroIntent = Intent(this, CadastroActivity::class.java)
+        val itemTouchHelperEdit = ItemTouchHelper(
+                object : SwipeToEditCallback(this) {
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                        var posicao = viewHolder.adapterPosition
+                        val prod = meusProdutosArrayList.get(posicao)
+//                        produtoCadastroIntent.putExtra("selectedIndex", posicao)
+                        produtoCadastroIntent.putExtra("produto", prod)
+
+                        startActivity(produtoCadastroIntent)
+                    }
+                }
+        )
+        itemTouchHelperEdit.attachToRecyclerView(rcv_lista_produtos)
     }
 
     private fun carregarProdutos(): ArrayList<Produto> {

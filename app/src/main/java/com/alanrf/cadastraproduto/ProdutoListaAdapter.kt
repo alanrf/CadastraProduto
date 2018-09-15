@@ -41,19 +41,19 @@ class ProdutoListaAdapter(
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val nomeProduto: TextView = itemView.lbProduto
-        private val descricaoProduto: TextView = itemView.lbDescricao
-        private val quantidadeProduto: TextView = itemView.lbQuantidade
-        private val dataValidadeProduto: TextView = itemView.lbData
+        private val nome: TextView = itemView.lbProduto
+        private val categoria: TextView = itemView.lbCategoria
+        private val quantidade: TextView = itemView.lbQuantidade
+        private val validade: TextView = itemView.lbData
 
         val myFormat = "dd/MM/yyyy"
         val sdf = SimpleDateFormat(myFormat)
 
         fun bind(produto: Produto) {
-            nomeProduto.text = produto.nome
-            descricaoProduto.text = produto.descricao
-            quantidadeProduto.text = produto.quantidade.toString()
-            dataValidadeProduto.text = sdf.format(produto.validade.time)
+            nome.text = produto.nome
+            categoria.text = produto.categoria
+            quantidade.text = produto.quantidade.toString()
+            validade.text = sdf.format(produto.validade.time)
         }
     }
 

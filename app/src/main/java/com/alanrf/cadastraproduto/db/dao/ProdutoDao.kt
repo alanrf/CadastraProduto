@@ -18,4 +18,6 @@ interface ProdutoDao {
     @Delete
     fun remover(vararg produto: Produto)
 
+    @Update
+    fun atualizar(vararg produto: Produto)
 }

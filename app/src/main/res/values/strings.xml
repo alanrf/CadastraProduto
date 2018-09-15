@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Cadastra Produto</string>
     <string name="title_activity_main">Produtos</string>
+
+
+    <string-array name="array_categoria">
+        <item>Medicamento</item>
+        <item>Perfume</item>
+        <item>Cosmético</item>
+    </string-array>
 </resources>

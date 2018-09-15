@@ -5,12 +5,15 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
 import android.view.View
+import android.widget.SimpleCursorAdapter
+import android.widget.Spinner
 import com.alanrf.cadastraproduto.MainActivity.Companion.meusProdutosArrayList
 import com.alanrf.cadastraproduto.MainActivity.Companion.produtoDao
 import com.alanrf.cadastraproduto.db.entity.Produto
 import kotlinx.android.synthetic.main.content_cadastro.*
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class CadastroActivity : AppCompatActivity() {
 
@@ -24,6 +27,31 @@ class CadastroActivity : AppCompatActivity() {
         defineComportamentoDataValidade()
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        if (intent.extras != null && intent.extras.containsKey("produto")) {
+            val produtoOriginal = intent.extras.getSerializable("produto") as Produto
+
+            edNome.editText?.setText(produtoOriginal.nome)
+            edDescricao.editText?.setText(produtoOriginal.descricao)
+            edQuantidade.editText?.setText(""+produtoOriginal.quantidade)
+            edDataValidade.editText?.setText(sdf.format(produtoOriginal.validade))
+
+            selectSpinnerItemByValue(spCategoria, produtoOriginal.categoria)
+        }
+    }
+
+    private fun selectSpinnerItemByValue(sp: Spinner, value: String) {
+        val adapter = sp.adapter as SimpleCursorAdapter
+        for (position in 0 until adapter.getCount()) {
+            if (adapter.getItem(position).toString() === value) {
+                sp.setSelection(position)
+                return
+            }
+        }
+    }
+
     private fun defineComportamentoDataValidade() {
         var cal = Calendar.getInstance()
 
@@ -33,13 +61,13 @@ class CadastroActivity : AppCompatActivity() {
             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
             val str = sdf.format(cal.time)
-            edt_data_validade.editText?.setText(str)
+            edDataValidade.editText?.setText(str)
 
         }
 
-        edt_data_validade.editText?.inputType = InputType.TYPE_NULL;
-        edt_data_validade.editText?.showSoftInputOnFocus = false;
-        edt_data_validade.editText?.setOnClickListener {
+        edDataValidade.editText?.inputType = InputType.TYPE_NULL;
+        edDataValidade.editText?.showSoftInputOnFocus = false;
+        edDataValidade.editText?.setOnClickListener {
             DatePickerDialog(this@CadastroActivity, dateSetListener,
                     cal.get(Calendar.YEAR),
                     cal.get(Calendar.MONTH),
@@ -48,16 +76,21 @@ class CadastroActivity : AppCompatActivity() {
     }
 
     fun gravar(view: View) {
-        val nomeProduto = edt_nome_produto.editText?.text.toString()
-        val descricaoProduto = edt_descricao_produto.editText?.text.toString()
-        val quantidadeProduto = edt_quantidade_produto.editText?.text.toString().toInt()
-        val dataValidade = sdf.parse(edt_data_validade.editText?.text.toString());
+        val nome = edNome.editText?.text.toString()
+        val descricao = edDescricao.editText?.text.toString()
+        val quantidade = edQuantidade.editText?.text.toString().toInt()
+        val dataValidade = sdf.parse(edDataValidade.editText?.text.toString())
+        val categoria = spCategoria.selectedItem.toString()
 
-        val produto = Produto(nome = nomeProduto, descricao = descricaoProduto, quantidade = quantidadeProduto, validade = dataValidade)
-
-        produtoDao.inserir(produto)
-
-        meusProdutosArrayList.add(produto)
+        if (intent.extras != null && intent.extras.containsKey("produto")) {
+            val produtoOriginal = intent.extras.getSerializable("produto") as Produto
+            val produto = Produto(id = produtoOriginal.id, nome = nome, descricao = descricao, categoria = categoria, quantidade = quantidade, validade = dataValidade)
+            produtoDao.atualizar(produto)
+        } else {
+            val produto = Produto(nome = nome, descricao = descricao, categoria = categoria, quantidade = quantidade, validade = dataValidade)
+            produtoDao.inserir(produto)
+            meusProdutosArrayList.add(produto)
+        }
 
         finish()
     }
