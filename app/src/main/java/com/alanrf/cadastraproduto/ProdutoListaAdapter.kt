@@ -10,13 +10,13 @@ import com.alanrf.cadastraproduto.db.entity.Produto
 import kotlinx.android.synthetic.main.lista_produto_item.view.*
 import java.text.SimpleDateFormat
 
-class ProdutoListaAdapter (
-        private val produtos : MutableList<Produto> = mutableListOf(),
+class ProdutoListaAdapter(
+        private val produtos: MutableList<Produto> = mutableListOf(),
         private val context: Context) : RecyclerView.Adapter<ProdutoListaAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, p1: Int): ViewHolder {
         val createdView = LayoutInflater.from(context).inflate(R.layout.lista_produto_item, parent, false)
-        return  ViewHolder(createdView)
+        return ViewHolder(createdView)
     }
 
     override fun getItemCount(): Int {
@@ -41,9 +41,9 @@ class ProdutoListaAdapter (
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val nomeProduto : TextView = itemView.lbProduto
-        private val descricaoProduto : TextView = itemView.lbDescricao
-        private val quantidadeProduto : TextView = itemView.lbData
+        private val nomeProduto: TextView = itemView.lbProduto
+        private val descricaoProduto: TextView = itemView.lbDescricao
+        private val quantidadeProduto: TextView = itemView.lbData
         private val dataValidadeProduto: TextView = itemView.lbData
 
         val myFormat = "dd/MM/yyyy"
