@@ -43,7 +43,7 @@ class ProdutoListaAdapter(
 
         private val nomeProduto: TextView = itemView.lbProduto
         private val descricaoProduto: TextView = itemView.lbDescricao
-        private val quantidadeProduto: TextView = itemView.lbData
+        private val quantidadeProduto: TextView = itemView.lbQuantidade
         private val dataValidadeProduto: TextView = itemView.lbData
 
         val myFormat = "dd/MM/yyyy"
