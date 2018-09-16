@@ -112,7 +112,7 @@ class CadastroActivity : AppCompatActivity() {
 
     private fun validaEditTextNotNull(ed: EditText?): Boolean {
         if (ed == null) {
-            Toast.makeText(this, "Um erro inesperado aconteceu, contate a empresa desenvolvedora", Toast.LENGTH_LONG)
+            Toast.makeText(this, "Um erro inesperado aconteceu, contate a empresa desenvolvedora", Toast.LENGTH_LONG).show()
         }
 
         if (ed?.text == null || ed?.text.toString().trim() == "") {
