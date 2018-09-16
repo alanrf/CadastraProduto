@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
 import android.view.View
-import android.widget.SimpleCursorAdapter
+import android.widget.ArrayAdapter
+import android.widget.EditText
 import android.widget.Spinner
+import android.widget.Toast
 import com.alanrf.cadastraproduto.MainActivity.Companion.meusProdutosArrayList
 import com.alanrf.cadastraproduto.MainActivity.Companion.produtoDao
 import com.alanrf.cadastraproduto.db.entity.Produto
@@ -19,6 +21,7 @@ class CadastroActivity : AppCompatActivity() {
 
     private val myFormat = "dd/MM/yyyy"
     private val sdf = SimpleDateFormat(myFormat)
+    private var cal = Calendar.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,12 +41,14 @@ class CadastroActivity : AppCompatActivity() {
             edQuantidade.editText?.setText(""+produtoOriginal.quantidade)
             edDataValidade.editText?.setText(sdf.format(produtoOriginal.validade))
 
+            cal.timeInMillis = produtoOriginal.validade.time
+
             selectSpinnerItemByValue(spCategoria, produtoOriginal.categoria)
         }
     }
 
     private fun selectSpinnerItemByValue(sp: Spinner, value: String) {
-        val adapter = sp.adapter as SimpleCursorAdapter
+        val adapter = sp.adapter as ArrayAdapter<String>
         for (position in 0 until adapter.getCount()) {
             if (adapter.getItem(position).toString() === value) {
                 sp.setSelection(position)
@@ -53,8 +58,6 @@ class CadastroActivity : AppCompatActivity() {
     }
 
     private fun defineComportamentoDataValidade() {
-        var cal = Calendar.getInstance()
-
         val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
             cal.set(Calendar.YEAR, year)
             cal.set(Calendar.MONTH, monthOfYear)
@@ -62,7 +65,7 @@ class CadastroActivity : AppCompatActivity() {
 
             val str = sdf.format(cal.time)
             edDataValidade.editText?.setText(str)
-
+            edDataValidade.editText?.error = null
         }
 
         edDataValidade.editText?.inputType = InputType.TYPE_NULL;
@@ -76,6 +79,10 @@ class CadastroActivity : AppCompatActivity() {
     }
 
     fun gravar(view: View) {
+        if (!validarCampos()) {
+            return
+        }
+
         val nome = edNome.editText?.text.toString()
         val descricao = edDescricao.editText?.text.toString()
         val quantidade = edQuantidade.editText?.text.toString().toInt()
@@ -93,5 +100,26 @@ class CadastroActivity : AppCompatActivity() {
         }
 
         finish()
+    }
+
+    private fun validarCampos() : Boolean {
+        var b =  validaEditTextNotNull(edNome.editText)
+        b = validaEditTextNotNull(edDescricao.editText) && b;
+        b = validaEditTextNotNull(edQuantidade.editText) && b;
+        b = validaEditTextNotNull(edDataValidade.editText) && b;
+        return b
+    }
+
+    private fun validaEditTextNotNull(ed: EditText?): Boolean {
+        if (ed == null) {
+            Toast.makeText(this, "Um erro inesperado aconteceu, contate a empresa desenvolvedora", Toast.LENGTH_LONG)
+        }
+
+        if (ed?.text == null || ed?.text.toString().trim() == "") {
+            ed?.error = "Este campo deve ser preenchido"
+            return false
+        }
+
+        return true
     }
 }
