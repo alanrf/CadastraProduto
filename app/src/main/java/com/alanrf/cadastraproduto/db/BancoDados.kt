@@ -19,6 +19,6 @@ abstract class BancoDados : RoomDatabase() {
 
 val MIGRATION_1_2: Migration = object : Migration(1, 2) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("ALTER TABLE Produto ADD COLUMN categoria TEXT NOT NULL DEFAULT 'Medicamento' ")
+        database.execSQL("ALTER TABLE produto ADD COLUMN categoria TEXT NOT NULL DEFAULT 'Medicamento' ")
     }
 }
