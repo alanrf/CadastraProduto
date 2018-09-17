@@ -50,7 +50,7 @@ class CadastroActivity : AppCompatActivity() {
     private fun selectSpinnerItemByValue(sp: Spinner, value: String) {
         val adapter = sp.adapter as ArrayAdapter<String>
         for (position in 0 until adapter.getCount()) {
-            if (adapter.getItem(position).toString() === value) {
+            if (adapter.getItem(position).toString() == value) {
                 sp.setSelection(position)
                 return
             }
